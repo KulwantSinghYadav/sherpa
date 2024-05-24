@@ -46,10 +46,6 @@ def get_user_agent_from_config_file(
 
     config = OmegaConf.load(config_path)
 
-<<<<<<< HEAD
-=======
-    agent_config = instantiate(config.agent_config)
->>>>>>> 0795538cbd9b08b3bc4f2342a59b2baa1e712017
     user: UserAgent = instantiate(config.user)
 
     return user
@@ -77,12 +73,6 @@ if __name__ == "__main__":
     with open("blueprint.json", "w") as f:
         f.write(pure_json_str)
 
-<<<<<<< HEAD
-=======
-    #with open("blueprint.json", "r") as f:
-    #    pure_json_str = f.read()
-
->>>>>>> 0795538cbd9b08b3bc4f2342a59b2baa1e712017
     parsed_json = json.loads(pure_json_str)
 
     blog = ""
@@ -96,7 +86,6 @@ if __name__ == "__main__":
             writer_agent.shared_memory.add(EventType.task, "human", evidence)
             result = writer_agent.run()
 
-<<<<<<< HEAD
             reviewer_input = (
                 "\n"
                 "Please review the paragraph generated below. "
@@ -114,31 +103,11 @@ if __name__ == "__main__":
             if decision_content == []:
                 break
 
-=======
-
-            reviewer_input= "\n" + "Please review the paragraph generated below. Type 'yes', 'y' or simply press Enter \
-                if everything looks good. Else provide feedback on how you would like the paragraph modified." \
-                + "\n\n" + result
-            reviewer_agent.shared_memory.add(EventType.task, "human", reviewer_input)
-
-            decision = reviewer_agent.run()
-            decision_event= reviewer_agent.shared_memory.get_by_type(EventType.result)
-            decision_content=decision_event[-1].content
-
-            if decision_content == []:
-                break
-            #
->>>>>>> 0795538cbd9b08b3bc4f2342a59b2baa1e712017
             if decision_content.lower() in ["yes", "y", ""]:
                 pass
             else:
                 writer_agent.shared_memory.add(EventType.task, "human", decision_content)
                 result = writer_agent.run()
-<<<<<<< HEAD
-
-=======
-            # writer_agent.belief = Belief()
->>>>>>> 0795538cbd9b08b3bc4f2342a59b2baa1e712017
             blog += f"{result}\n"
 
     with open("blog.md", "w") as f:
