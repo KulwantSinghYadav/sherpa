@@ -8,8 +8,6 @@ from sherpa_ai.events import EventType
 
 from outliner import Outliner
 
-# from sherpa_ai.memory import Belief
-
 
 def get_qa_agent_from_config_file(
     config_path: str,
@@ -48,7 +46,6 @@ def get_user_agent_from_config_file(
 
     config = OmegaConf.load(config_path)
 
-    agent_config = instantiate(config.agent_config)
     user: UserAgent = instantiate(config.user)
 
     return user
@@ -76,9 +73,6 @@ if __name__ == "__main__":
     with open("blueprint.json", "w") as f:
         f.write(pure_json_str)
 
-    #with open("blueprint.json", "r") as f:
-    #    pure_json_str = f.read()
-
     parsed_json = json.loads(pure_json_str)
 
     blog = ""
@@ -92,39 +86,32 @@ if __name__ == "__main__":
             writer_agent.shared_memory.add(EventType.task, "human", evidence)
             result = writer_agent.run()
 
-
-            reviewer_input= "\n" + "Please review the paragraph generated below. Type 'yes', 'y' or simply press Enter \
-                if everything looks good. Else provide feedback on how you would like the paragraph modified." \
-                + "\n\n" + result
+            reviewer_input = (
+                "\n"
+                "Please review the paragraph generated below. "
+                "Type 'yes', 'y' or simply press Enter if everything looks good. "
+                "Else provide feedback on how you would like the paragraph changed."
+                "\n\n"
+                + result
+            )
             reviewer_agent.shared_memory.add(EventType.task, "human", reviewer_input)
 
             decision = reviewer_agent.run()
-            decision_event= reviewer_agent.shared_memory.get_by_type(EventType.result)
-            decision_content=decision_event[-1].content
+            decision_event = reviewer_agent.shared_memory.get_by_type(EventType.result)
+            decision_content = decision_event[-1].content
 
             if decision_content == []:
                 break
-            #
+
             if decision_content.lower() in ["yes", "y", ""]:
                 pass
             else:
                 writer_agent.shared_memory.add(EventType.task, "human", decision_content)
                 result = writer_agent.run()
-            # writer_agent.belief = Belief()
+
             blog += f"{result}\n"
 
     with open("blog.md", "w") as f:
         f.write(blog)
 
     print("\nBlog generated successfully!\n")
-
-    # save_format = None
-    # while save_format is None:
-    #     save_format = input(
-    #         "Select format to save the blog in: 1. Markdown (Default) 2. ReStructured Text\n"
-    #     )
-
-    # if save_format == "2":
-    #     output = pypandoc.convert("blog.md", "rst")
-    #     if os.path.exists("blog.md"):
-    #         os.remove("blog.md")
